@@ -9,9 +9,9 @@ Liste des containers:
   docker service ls
 
 Lancer un service:
-docker-compose -f docker-compose.yml build
-docker-compose -f docker-compose.yml up -d
-  docker-compose -f docker-compose.yml start magazin-application
+    docker-compose -f docker-compose.yml build
+    docker-compose -f docker-compose.yml up -d
+    docker-compose -f docker-compose.yml start magazin-application
 
 Stop Service:
 
@@ -29,3 +29,46 @@ create service:
 Test Swagger via :
 
    http://localhost:8090/swagger-ui/index.html?configUrl=/
+
+
+Install Elactic search :
+docker pull docker.elastic.co/elasticsearch/elasticsearch:7.3.1
+
+
+
+docker run -p 127.0.0.1:9200:9200 -p 127.0.0.1:9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+
+lancer les cluster de elastic search:
+
+docker-compose -f elastic-compose.yml build
+docker-compose -f elastic-compose.yml up
+
+docker-compose -f elastic-compose.yml start
+
+docker service create --name elastic docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+   docker-compose -f elastic-compose.yml start
+
+
+TO UPDATE max_map_count
+ aprtir de power shell
+for windows users, using wsl subsystem
+
+open powershell run
+
+wsl -d docker-desktop
+
+then
+
+sysctl -w vm.max_map_count=262144
+
+
+
+docker pull docker.elastic.co/elasticsearch/lohs:7.3.1
+
+
+java -javaagent:./elastic-apm-agent-1.28.4.jar \
+     -Delastic.apm.service_name=magazin \
+     -Delastic.apm.server_url=http://localhost:8200 \
+     -Delastic.apm.secret_token= \
+     -Delastic.apm.application_packages=com.boot.demo \
+     -jar .jar

@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @Service
 @Slf4j
 public class ArticleServiceImpl implements ArticleService {
+
     private ArticleRepository articleRepository;
 
     public ArticleServiceImpl(ArticleRepository articleRepository) {
@@ -20,7 +21,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public Article showArticle(String name) {
         log.info("Show an article {}", name);
-        Article acticle=articleRepository.save(Article.builder().id(1L).amount(BigDecimal.ONE).name(name).build());
+        Article acticle = articleRepository.save(Article.builder().id(1L).amount(BigDecimal.ONE).name(name).build());
         return acticle;
     }
 
@@ -34,8 +35,8 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public Boolean deleteArticle(Long id) {
         log.info("Delete an article {}", id);
-         articleRepository.delete(articleRepository.getById(id));
-         return true;
+        articleRepository.delete(articleRepository.getById(id));
+        return true;
 
     }
 }

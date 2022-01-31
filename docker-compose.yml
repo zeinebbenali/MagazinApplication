@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   web-fe:
-    image: zeinebbenali/magazin-application:1.5
+    image: zeinebbenali/magazin-application:1.6
     command: bash -c "java -jar app.jar"
     deploy:
       replicas: 1
