@@ -2,7 +2,7 @@ version: '3.2'
 services:
   kibana:
     depends_on:
-      - es01
+      - elasticsearch
      # - es02
       - logstash
     image: docker.elastic.co/kibana/kibana:7.3.1
@@ -10,8 +10,8 @@ services:
     ports:
       - 5601:5601
     environment:
-      ELASTICSEARCH_HOSTS: http://es01:9200
-      ELASTICSEARCH_URL: http://es01:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_URL: http://elasticsearch:9200
       XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED: "true"
     restart: unless-stopped
 
@@ -24,23 +24,23 @@ services:
       - "9600:9600"
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-      XPACK_MONITORING_ELASTICSEARCH_HOSTS: "es01:9200"
-      XPACK_MONITORING_ELASTICSEARCH_URLS: "es01:9200"
-      XPACK_MONITORING_ENABLED: "true"
+      XPACK_MONITORING_ELASTICSEARCH_HOSTS: "elasticsearch:9200"
+      XPACK_MONITORING_ELASTICSEARCH_URLS: "elasticsearch:9200"
+      XPACK_MONITORING_ENABLED: "false"
     volumes:
       - ./:/usr/share/logstash/pipeline:ro
     restart: unless-stopped
     depends_on:
-      - es01
+      - elasticsearch
      # - es02
 
-  es01:
+  elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
-    container_name: es01
+    container_name: elasticsearch
     environment:
-      - node.name=es01
+      - node.name=elasticsearch
       #- discovery.seed_hosts=es02
-      - cluster.initial_master_nodes=es01 #,es02
+      - cluster.initial_master_nodes=elasticsearch #,es02
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
@@ -59,8 +59,8 @@ services:
 #    container_name: es02
 #    environment:
 #      - node.name=es02
-#      - discovery.seed_hosts=es01
-#      - cluster.initial_master_nodes=es01,es02
+#      - discovery.seed_hosts=elasticsearch
+#      - cluster.initial_master_nodes=elasticsearch,es02
 #      - cluster.name=docker-cluster
 #      - bootstrap.memory_lock=true
 #      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"

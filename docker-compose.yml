@@ -1,17 +1,20 @@
 version: "3.8"
 services:
   web-fe:
-    image: zeinebbenali/magazin-application:1.6
+    image: zeinebbenali/magazin-application:1.9
     command: bash -c "java -jar app.jar"
+    container_name: magazin-application
     deploy:
       replicas: 1
     ports:
       - target: 8090
         published: 5001
     networks:
-      - counter-net
+      - elk
 networks:
-  counter-net:
+  elk:
+    driver: bridge
 
 volumes:
-  counter-vol:
+  esdata01:
+    driver: local

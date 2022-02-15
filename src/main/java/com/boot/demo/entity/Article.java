@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @Data
 @Builder
 @Entity
+
 @NoArgsConstructor
 @AllArgsConstructor
 public class Article {

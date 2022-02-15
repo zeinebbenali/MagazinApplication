@@ -1,59 +1,111 @@
 version: '3.2'
 services:
   kibana:
+    build:
+      context: kibana/
     depends_on:
-      - es01
+      - elasticsearch
       - logstash
     image: docker.elastic.co/kibana/kibana:7.3.1
     container_name: kibana
     ports:
       - 5601:5601
     environment:
-      ELASTICSEARCH_HOSTS: http://es01:9200
-      ELASTICSEARCH_URL: http://es01:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_URL: http://elasticsearch:9200
       XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED: "true"
+    volumes:
+      - ./kibana/kibana.yml:/usr/share/kibana/kibana.yml:ro,z
+    configs:
+      - source: kibana_config
+        target: /usr/share/kibana/config/kibana.yml
     restart: unless-stopped
+    networks:
+      - elk
+  apm:
+    container_name: apm
+    build:
+      context: apm/
+    image: docker.elastic.co/apm/apm-server:7.13.0
+    cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
+    cap_drop: ["ALL"]
+    ports:
+      - 8200:8200
+    networks:
+      - elk
+    volumes:
+      - ./apm-server/apm-server.yml:/usr/share/apm-server/config/apm-server.yml:ro,z
+    depends_on: ["elasticsearch", "kibana"]
 
 
   logstash:
+    build:
+      context: logstash/
     image: docker.elastic.co/logstash/logstash:7.3.1
     container_name: logstash
+    depends_on:
+      - elasticsearch
     ports:
       - "5044:5044"
       - "5000:5000/tcp"
       - "5000:5000/udp"
       - "9600:9600"
+    configs:
+      - source: logstash_config
+        target: /usr/share/logstash/config/logstash.yml
+      - source: logstash_pipeline
+        target: /usr/share/logstash/pipeline/logstash.conf
     environment:
       LS_JAVA_OPTS: "-Xmx512m -Xms512m"
-      XPACK_MONITORING_ELASTICSEARCH_HOSTS: "es01:9200"
-      XPACK_MONITORING_ELASTICSEARCH_URLS: "es01:9200"
-      XPACK_MONITORING_ENABLED: "true"
+      XPACK_MONITORING_ELASTICSEARCH_HOSTS: "elasticsearch:9200"
+      XPACK_MONITORING_ELASTICSEARCH_URLS: "elasticsearch:9200"
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      XPACK_MONITORING_ENABLED: "false"
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:rwo,z
-      - ./logstash/config/pipline.yml:/usr/share/logstash/config/pipline.yml:rwo,z
+      - ./logstash/config/pipeline.yml:/usr/share/logstash/config/pipeline.yml:rwo,z
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,z
-    depends_on:
-      - es01
+    networks:
+      - elk
 
-  es01:
+  elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
-    container_name: es01
+    container_name: elasticsearch
+    build:
+      context: elasticsearch/
+    configs:
+      - source: elastic_config
+        target: /usr/share/elasticsearch/elasticsearch.yml
     environment:
-      - node.name=es01
-      - cluster.initial_master_nodes=es01
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+      ES_JAVA_OPTS: "-Xmx1g -Xms1g"
+      ELASTIC_PASSWORD: changeme
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks.
+      # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      node.name: elasticsearch
+      cluster.initial_master_nodes: elasticsearch
     volumes:
-      - esdata01:/usr/share/elasticsearch/data
+      - esdata01:/usr/share/elasticsearch/data:z
     ports:
-      - 9200:9200
-      - 9300:9300
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - elk
+
+configs:
+  elastic_config:
+    file: ./elasticsearch/elasticsearch.yml
+  logstash_config:
+    file: ./logstash/config/logstash.yml
+  logstash_pipeline:
+    file: ./logstash/pipeline/logstash.conf
+  kibana_config:
+    file: ./kibana/kibana.yml
 
 volumes:
   esdata01:
     driver: local
+
+networks:
+  elk:
+    driver: bridge

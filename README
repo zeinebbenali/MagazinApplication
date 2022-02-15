@@ -42,7 +42,7 @@ lancer les cluster de elastic search:
 
 docker-compose -f elastic-compose.yml build
 docker-compose -f elastic-compose.yml up
-
+docker-compose -f elastic-compose.yml create
 docker-compose -f elastic-compose.yml start
 
 docker service create --name elastic docker.elastic.co/elasticsearch/elasticsearch:7.16.2
@@ -65,10 +65,11 @@ sysctl -w vm.max_map_count=262144
 
 docker pull docker.elastic.co/elasticsearch/lohs:7.3.1
 
+docker pull docker.elastic.co/apm/apm-server:7.13.0
 
 java -javaagent:./elastic-apm-agent-1.28.4.jar \
      -Delastic.apm.service_name=magazin \
-     -Delastic.apm.server_url=http://localhost:8200 \
+     -Delastic.apm.server_url=http://localhost:5001 \
      -Delastic.apm.secret_token= \
      -Delastic.apm.application_packages=com.boot.demo \
      -jar .jar

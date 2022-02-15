@@ -105,9 +105,21 @@
             <artifactId>logstash-logback-encoder</artifactId>
             <version>6.3</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/co.elastic.apm/apm-agent-api -->
+        <dependency>
+            <groupId>co.elastic.apm</groupId>
+            <artifactId>apm-agent-api</artifactId>
+            <version>1.28.4</version>
+        </dependency>
         <dependency>
             <groupId>co.elastic.apm</groupId>
             <artifactId>apm-opentracing</artifactId>
+            <version>1.28.4</version>
+        </dependency>
+        <dependency>
+            <groupId>co.elastic.apm</groupId>
+            <artifactId>apm-agent-attach</artifactId>
+            <version>1.20.0</version>
         </dependency>
     </dependencies>
 
