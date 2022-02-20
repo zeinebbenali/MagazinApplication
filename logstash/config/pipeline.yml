@@ -1,1 +1,1 @@
-pipeline:ecs_compatibility: disabled
+pipeline.ecs_compatibility: disabled

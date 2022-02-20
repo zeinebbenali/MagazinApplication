@@ -1,110 +1,108 @@
 version: '3.2'
 services:
-  kibana:
-    build:
-      context: kibana/
-    depends_on:
-      - elasticsearch
-      - logstash
-    image: docker.elastic.co/kibana/kibana:7.3.1
-    container_name: kibana
-    ports:
-      - 5601:5601
-    environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      ELASTICSEARCH_URL: http://elasticsearch:9200
-      XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED: "true"
-    volumes:
-      - ./kibana/kibana.yml:/usr/share/kibana/kibana.yml:ro,z
-    configs:
-      - source: kibana_config
-        target: /usr/share/kibana/config/kibana.yml
-    restart: unless-stopped
-    networks:
-      - elk
-  apm:
-    container_name: apm
-    build:
-      context: apm/
-    image: docker.elastic.co/apm/apm-server:7.13.0
-    cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
-    cap_drop: ["ALL"]
-    ports:
-      - 8200:8200
-    networks:
-      - elk
-    volumes:
-      - ./apm-server/apm-server.yml:/usr/share/apm-server/config/apm-server.yml:ro,z
-    depends_on: ["elasticsearch", "kibana"]
-
-
-  logstash:
-    build:
-      context: logstash/
-    image: docker.elastic.co/logstash/logstash:7.3.1
-    container_name: logstash
-    depends_on:
-      - elasticsearch
-    ports:
-      - "5044:5044"
-      - "5000:5000/tcp"
-      - "5000:5000/udp"
-      - "9600:9600"
-    configs:
-      - source: logstash_config
-        target: /usr/share/logstash/config/logstash.yml
-      - source: logstash_pipeline
-        target: /usr/share/logstash/pipeline/logstash.conf
-    environment:
-      LS_JAVA_OPTS: "-Xmx512m -Xms512m"
-      XPACK_MONITORING_ELASTICSEARCH_HOSTS: "elasticsearch:9200"
-      XPACK_MONITORING_ELASTICSEARCH_URLS: "elasticsearch:9200"
-      ELASTICSEARCH_URL: http://elasticsearch:9200
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      XPACK_MONITORING_ENABLED: "false"
-    volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:rwo,z
-      - ./logstash/config/pipeline.yml:/usr/share/logstash/config/pipeline.yml:rwo,z
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,z
-    networks:
-      - elk
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
     container_name: elasticsearch
-    build:
-      context: elasticsearch/
-    configs:
-      - source: elastic_config
-        target: /usr/share/elasticsearch/elasticsearch.yml
-    environment:
-      ES_JAVA_OPTS: "-Xmx1g -Xms1g"
-      ELASTIC_PASSWORD: changeme
-      # Use single node discovery in order to disable production mode and avoid bootstrap checks.
-      # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
-      node.name: elasticsearch
-      cluster.initial_master_nodes: elasticsearch
     volumes:
-      - esdata01:/usr/share/elasticsearch/data:z
+      - type: bind
+        source: ./elasticsearch/config/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - type: volume
+        source: elasticsearch
+        target: /usr/share/elasticsearch/data
     ports:
       - "9200:9200"
       - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: changeme
+      # Use single node discovery in order to disable production mode and avoid bootstrap checks
+      # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
+      discovery.type: single-node
     networks:
       - elk
 
-configs:
-  elastic_config:
-    file: ./elasticsearch/elasticsearch.yml
-  logstash_config:
-    file: ./logstash/config/logstash.yml
-  logstash_pipeline:
-    file: ./logstash/pipeline/logstash.conf
-  kibana_config:
-    file: ./kibana/kibana.yml
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.3.1
+    container_name: logstash
+    volumes:
+      - type: bind
+        source: ./logstash/config/logstash.yml
+        target: /usr/share/logstash/config/logstash.yml
+        read_only: true
+      - type: bind
+        source: ./logstash/pipeline
+        target: /usr/share/logstash/pipeline
+        read_only: true
+    ports:
+      - "5000:5000"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.3.1
+    container_name: kibana
+    volumes:
+      - type: bind
+        source: ./kibana/config/kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+
+  apm-server:
+    container_name: apm-server
+    image: docker.elastic.co/apm/apm-server:7.3.1
+    ports:
+      - "8200:8200"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./apm-server/config/apm-server.yml:/usr/share/apm-server/config/apm-server.yml:ro,z
+    command: [
+        "apm-server",
+        "-e",
+        "-E", "output.elasticsearch.username=elastic",
+        "-E", "output.elasticsearch.password=changeme",
+    ]
+
+  filebeat:
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    image: docker.elastic.co/beats/filebeat:7.3.1
+    container_name: filebeat
+    volumes:
+      - type: bind
+        source: ./filebeat/config/filebeat.yml
+        target: /usr/share/filebeat/config/filebeat.yml
+        read_only: true
+      - type: bind
+        source: /var/lib/docker/containers
+        target: /usr/share/filebeat/dockerlogs
+        read_only: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
 
 volumes:
-  esdata01:
-    driver: local
+  elasticsearch:
 
 networks:
   elk:
