@@ -1,13 +1,11 @@
 pipeline {
     agent any
     stages {
-/*         stage('git repo & clean') {
+         stage('clean') {
             steps {
-               bat "rmdir  /s /q MagazinApplication"
-                bat "git clone https://github.com/zeinebbenali/MagazinApplication.git"
                 bat "mvn clean -f MagazinApplication"
             }
-        } */
+        }
         stage('install') {
             steps {
                 bat "mvn install -f MagazinApplication"
