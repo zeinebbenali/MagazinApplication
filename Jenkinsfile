@@ -3,22 +3,22 @@ pipeline {
     stages {
          stage('clean') {
             steps {
-                bat "mvn clean -f MagazinApplication"
+                bat "mvn clean -f Magazin-Application"
             }
         }
         stage('install') {
             steps {
-                bat "mvn install -f MagazinApplication"
+                bat "mvn install -f Magazin-Application"
             }
         }
         stage('test') {
             steps {
-                bat "mvn test -f MagazinApplication"
+                bat "mvn test -f Magazin-Application"
             }
         }
         stage('package') {
             steps {
-                bat "mvn package -f MagazinApplication"
+                bat "mvn package -f Magazin-Application"
             }
         }
     }

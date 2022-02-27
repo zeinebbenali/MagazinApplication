@@ -12,7 +12,7 @@
     <groupId>com.boot</groupId>
     <artifactId>Magazin-Application</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>MarketStockApi</name>
+    <name>Magazin-Application</name>
     <description>Boot project for Spring Boot</description>
     <properties>
         <java.version>8</java.version>
