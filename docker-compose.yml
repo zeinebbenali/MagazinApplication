@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   web-fe:
-    image: zeinebbenali/magazin-application:1.9
+    image: zeinebbenali/magazin-application:1.10
     command: bash -c "java -jar app.jar"
     container_name: magazin-application
     deploy:
