@@ -6,7 +6,7 @@ pipeline {
                 bat "mvn clean -f Magazin-Application"
             }
         }
-        stage('install') {
+     /*    stage('install') {
             steps {
                 bat "mvn install -f Magazin-Application"
             }
@@ -20,6 +20,6 @@ pipeline {
             steps {
                 bat "mvn package -f Magazin-Application"
             }
-        }
+        } */
     }
 }
