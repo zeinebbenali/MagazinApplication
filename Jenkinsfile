@@ -8,17 +8,17 @@ pipeline {
         }
         stage('install') {
             steps {
-                bat "mvn install -f Magazin-Application"
+                bat "mvn install "
             }
         }
         stage('test') {
             steps {
-                bat "mvn test -f Magazin-Application"
+                bat "mvn test"
             }
         }
         stage('package') {
             steps {
-                bat "mvn package -f Magazin-Application"
+                bat "mvn package "
             }
         }
     }
