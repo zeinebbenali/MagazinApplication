@@ -43,7 +43,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public Boolean deleteArticle(Long id) {
-        log.info("Delete an article {}", id);
+        log.info("Delete an article = {}", id);
         articleRepository.delete(articleRepository.getById(id));
         return true;
 
