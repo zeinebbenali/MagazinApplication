@@ -1,0 +1,31 @@
+Hyper-V
+https://minikube.sigs.k8s.io/docs/start/
+https://minikube.sigs.k8s.io/docs/drivers/hyperv/
+https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v
+
+Minikube install
+minikube config set driver docker
+minikube start --driver=docker
+kubectl get nodes
+
+
+kubectl create deployment nginx-dep --image=nginx
+
+kubectl get deployment
+kubectl get pod
+kubectl logs [podname]
+
+
+Pour la creation de service/ deployment via file
+kubectl apply -f .\service.yml
+
+To add an external IP
+minikube service dep-service
+
+
+To Enable Ingress in minikube
+minikube addons enable ingress
+
+
+To add kubernetes dashbord apply
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dep-service
+  namespace: default
+  labels:
+    app: dep-service
+spec:
+  selector:
+    app: dep-mag
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8090
+      targetPort: 8090
+      nodePort: 30000

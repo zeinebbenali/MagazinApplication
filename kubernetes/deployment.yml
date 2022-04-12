@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dep-mag
+  name: dep-mag
+  namespace: default
+spec:
+  replicas: 2
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: dep-mag
+  template:
+    metadata:
+      labels:
+        app: dep-mag
+    spec:
+      containers:
+        - name: dep-mag
+          image: zeinebbenali/magazin-application:1.10
+          ports:
+            - containerPort: 8090
+          env:
+            - name: ENV_VALUE
+              valueFrom:
+                secretKeyRef:
+                  name: mag-secret
+                  key: mag-root-username
+            - name: spring.datasource.password
+              valueFrom:
+                configMapKeyRef:
+                  name: mag-configmap
+                  key: spring.datasource.password
+
+
