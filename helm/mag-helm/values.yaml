@@ -1,0 +1,11 @@
+replicaCount: 1
+
+image:
+  repository: "zeinebbenali/magazin-application"
+  pullPolicy: IfNotPresent
+  tag: "1.10"
+  message: "Hello Zeineb"
+
+service:
+  type: NodePort
+  port: 8090

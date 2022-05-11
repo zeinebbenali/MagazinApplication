@@ -22,6 +22,8 @@ kubectl apply -f .\service.yml
 To add an external IP
 minikube service dep-service
 
+To get and url
+minikube service web --url
 
 To Enable Ingress in minikube
 minikube addons enable ingress

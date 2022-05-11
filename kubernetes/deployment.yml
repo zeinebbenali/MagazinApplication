@@ -6,7 +6,7 @@ metadata:
   name: dep-mag
   namespace: default
 spec:
-  replicas: 2
+  replicas: 1
   revisionHistoryLimit: 2
   selector:
     matchLabels:
@@ -21,16 +21,16 @@ spec:
           image: zeinebbenali/magazin-application:1.10
           ports:
             - containerPort: 8090
-          env:
-            - name: ENV_VALUE
-              valueFrom:
-                secretKeyRef:
-                  name: mag-secret
-                  key: mag-root-username
-            - name: spring.datasource.password
-              valueFrom:
-                configMapKeyRef:
-                  name: mag-configmap
-                  key: spring.datasource.password
+#          env:
+#            - name: ENV_VALUE
+#              valueFrom:
+#                secretKeyRef:
+#                  name: mag-secret
+#                  key: mag-root-username
+#            - name: spring.datasource.password
+#              valueFrom:
+#                configMapKeyRef:
+#                  name: mag-configmap
+#                  key: spring.datasource.password
 
 

@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  mag-helm:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2022-05-11T21:34:35.0868211+02:00"
+    description: A Helm chart for Kubernetes
+    digest: 75cf063393a9b1fc84cd7bf6f8c7dfa726fa854a638ef17e5a7e49fccbdd7664
+    name: mag-helm
+    type: application
+    urls:
+    - mag-helm-0.1.0.tgz
+    version: 0.1.0
+generated: "2022-05-11T21:34:35.0810605+02:00"

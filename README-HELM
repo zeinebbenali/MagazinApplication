@@ -1,0 +1,30 @@
+Install Helm via Chocolatey
+https://helm.sh/fr/docs/intro/install/
+ cmd: (Admin mode)
+    choco install kubernetes-helm
+
+Create the chart
+cmd :
+   helm create magazin-chart
+
+Install chart
+cmd :
+   helm install test-dep .\test-dep\
+
+Upgrade
+   helm upgade test-dep .\test-dep\
+
+Uninstall
+     helm unstall test-dep .\test-dep\
+
+
+Package
+-to get the repo list
+   helm repo list
+   helm repo verify
+
+-to create the package
+   helm package name-release
+
+
+
