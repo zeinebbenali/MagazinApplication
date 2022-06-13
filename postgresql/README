@@ -1,0 +1,29 @@
+To get the postgres image from https://hub.docker.com/_/postgres
+
+  docker pull postgres:version
+
+to start the instance
+
+  docker run --name some-postgres -e POSTGRES_PASSWORD=password -d -p 5432:5432 postgres
+
+to use the interactive mode in postgresql
+
+   docker exec -it postgres-0 bash
+
+   to log in psql
+
+    psql -U postgres
+==>> now you coulld mange your data base with terminal
+
+
+To get the pgAdmin with postgres using the compose
+ and to stop the containers
+
+ docker container stop container-id
+  docker container rm container-id
+
+
+deploy the compose on docker with
+
+  docker-compose -f .\postgres-compos.yml up
+
