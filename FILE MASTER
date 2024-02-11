@@ -1,1 +1,110 @@
-JE suis MAster branch
+@Configuration
+public class OAuth2Config {
+
+    @Bean
+    public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
+            ReactiveClientRegistrationRepository clientRegistrationRepository,
+            ReactiveOAuth2AuthorizedClientService authorizedClientService) {
+
+        ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
+                ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+                        .authorizationCode()
+                        .refreshToken()
+                        .build();
+
+        AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager authorizedClientManager =
+                new AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(
+                        clientRegistrationRepository, authorizedClientService);
+
+        authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+        return authorizedClientManager;
+    }
+
+    @Bean
+    public WebClient.Builder webClientBuilder(
+            ReactiveOAuth2AuthorizedClientManager authorizedClientManager) {
+
+        ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
+                new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
+
+        return WebClient.builder().apply(oauth2Client.oauth2Configuration());
+    }
+}
+±++++++
+@Configuration
+public class WebClientConfig {
+
+    @Value("${proxy.host}") // Specify the proxy host in application.properties or application.yml
+    private String proxyHost;
+
+    @Value("${proxy.port}") // Specify the proxy port in application.properties or application.yml
+    private int proxyPort;
+
+    @Value("${proxy.username}") // Specify the proxy username in application.properties or application.yml
+    private String proxyUsername;
+
+    @Value("${proxy.password}") // Specify the proxy password in application.properties or application.yml
+    private String proxyPassword;
+
+    @Bean
+    public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
+            ReactiveClientRegistrationRepository clientRegistrationRepository,
+            ReactiveOAuth2AuthorizedClientService authorizedClientService) {
+
+        // OAuth2 configuration...
+
+        return authorizedClientManager;
+    }
+
+    @Bean
+    public WebClient.Builder webClientBuilder(
+            ReactiveOAuth2AuthorizedClientManager authorizedClientManager) {
+
+        ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
+                new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
+
+        // Set up proxy configuration
+        ProxyProvider proxyProvider = staticProxyProvider(proxyHost, proxyPort);
+        ClientHttpConnector connector = new ReactorClientHttpConnector(
+                HttpClient.from(getProxyOptions(proxyProvider)));
+
+        // Set up WebClient with OAuth2 configuration and proxy
+        return WebClient.builder()
+                .apply(oauth2Client.oauth2Configuration())
+                .clientConnector(connector);
+    }
+
+    private ProxyOptions getProxyOptions(ProxyProvider proxyProvider) {
+        return ProxyOptions.builder()
+                .type(ProxyOptions.Type.HTTP)
+                .host(proxyHost)
+                .port(proxyPort)
+                .username(proxyUsername)
+                .password(proxyPassword)
+                .build()
+                .addToEnvironment(ClientHttpConnector.CONNECT_TIMEOUT, 5000);
+    }
+
+    private ProxyProvider staticProxyProvider(String proxyHost, int proxyPort) {
+        return StaticProxyProvider.builder()
+                .proxy(Proxy.HTTP, InetSocketAddress.createUnresolved(proxyHost, proxyPort))
+                .build();
+    }
+}
+
+
+=≠======
+@Autowired
+private WebClient.Builder webClientBuilder;
+
+public Mono<String> fetchDataFromProtectedResource() {
+    return webClientBuilder.build()
+            .get()
+            .uri("https://api.example.com/data")
+            .retrieve()
+            .bodyToMono(String.class);
+}
+
+
+https://stackoverflow.com/questions/58982286/spring-security-5-replacement-for-oauth2resttemplate
