@@ -1,0 +1,54 @@
+@Configuration
+public class GithubProxyConfig {
+
+    private static final Logger LOGGER = Logger.getLogger(GithubProxyConfig.class);
+
+    @Bean("githubClientRegistrationRepository")
+    public ReactiveClientRegistrationRepository githubClientRegistrationRepository() {
+        ClientRegistration registration = ClientRegistration
+                .withRegistrationId("github")
+                .clientId("ID")
+                .clientSecret("SECRET")
+                .redirectUri("https://oauth-service/api/login/oauth2/code/github")
+                .authorizationUri("https://github.com/login/oauth/authorize")
+                .tokenUri("https://github.com/login/oauth/access_token")
+                .userInfoUri("https://api.github.com/user")
+                .userNameAttributeName("login")
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .build();
+        return new InMemoryReactiveClientRegistrationRepository(registration);
+    }
+
+    @Primary
+    @Bean
+    @DependsOn(value = {"githubClientRegistrationRepository"})
+    public AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager authorizedClientServiceReactiveOAuth2AuthorizedClientManager(
+            @Qualifier("githubClientRegistrationRepository") ReactiveClientRegistrationRepository clientRegistrations,
+            WebClientBuilderFactory webClientBuilderFactory
+    ) throws SSLException {
+        WebClient webClient = webClientBuilderFactory
+                .newBuilder(LOGGER, "Github Client")
+                .clientConnector(sslConnectorFrom("60.32.59.68", 8080))
+                .build();
+        InMemoryReactiveOAuth2AuthorizedClientService authorizedClientService = new InMemoryReactiveOAuth2AuthorizedClientService(clientRegistrations);
+        AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager authorizedClientManager =
+                new AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(clientRegistrations, authorizedClientService);
+        authorizedClientManager.setAuthorizedClientProvider(createAuthorizedClientProvider(webClient));
+        ServerOAuth2AuthorizedClientExchangeFilterFunction oauth2FilterFunction = new ServerOAuth2AuthorizedClientExchangeFilterFunction(
+                authorizedClientManager
+        );
+        oauth2FilterFunction.setDefaultClientRegistrationId("github");
+        return authorizedClientManager;
+    }
+
+    private ReactiveOAuth2AuthorizedClientProvider createAuthorizedClientProvider(WebClient webClient) {
+        WebClientReactiveClientCredentialsTokenResponseClient clientCredentialsTokenResponseClient
+                = new WebClientReactiveClientCredentialsTokenResponseClient();
+        clientCredentialsTokenResponseClient.setWebClient(webClient);
+
+        return ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+                .clientCredentials(builder -> builder.accessTokenResponseClient(clientCredentialsTokenResponseClient))
+                .build();
+    }
+
+}
