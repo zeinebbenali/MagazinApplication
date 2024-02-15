@@ -1,0 +1,21 @@
+1. https://github.com/zeinebbenali/MagazinApplication/tree/postgres-docker
+2. https://medium.com/@vishal.sharma./run-postgresql-and-pgadmin-using-docker-compose-34120618bcf9
+3. https://docs.spring.io/spring-security/reference/servlet/oauth2/index.html#oauth2-resource-server
+4. https://stackoverflow.com/questions/68088305/spring-webclient-is-not-using-the-proxy-server-with-spring-security-oauth2-clien
+5. https://www.baeldung.com/spring-5-webclient
+6. https://docs.spring.io/spring-framework/reference/integration/rest-clients.html#rest-http-interface
+7. https://github.com/spring-projects/spring-security-samples/blob/6.2.x/reactive/webflux/java/oauth2/login/src/main/java/example/OAuth2LoginController.java
+8. https://spring.io/blog/2023/07/13/new-in-spring-6-1-restclient
+9. https://github.com/spring-projects/spring-framework/wiki/What's-New-in-Spring-Framework-6.x#whats-new-in-version-61
+10. https://www.baeldung.com/spring-boot-restclient
+11. https://stackoverflow.com/questions/58582112/webflux-spring-boot-oauth2-client-with-http-proxy-support
+12. https://copyprogramming.com/howto/webclient-proxy-property
+13. https://github.com/spring-projects/spring-security/issues/8966
+14. https://docs.spring.io/spring-security/reference/servlet/authorization/authorize-http-requests.html
+15. https://docs.spring.io/spring-security/reference/getting-spring-security.html
+16. https://github.com/spring-projects/spring-framework
+17. https://spring.io/projects/spring-security
+18. https://stackoverflow.com/questions/74783349/preauthorize-not-working-after-upgrading-to-spring-boot-3-spring-security-6/74885780#74885780
+19. https://docs.spring.io/spring-security/reference/servlet/authorization/method-security.html#servlet-replace-globalmethodsecurity-with-methodsecurity
+20. https://github.com/spring-projects/spring-security/tree/5.4.x/samples/boot/oauth2login-webflux/src/main/java/sample
+ 
